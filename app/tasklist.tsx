@@ -1,10 +1,12 @@
 import { Text, View, StyleSheet, ScrollView } from "react-native";
 import Task from "./task";
-import tasks from "./taskData"
+import { TaskModel } from "./task";
+import tasks from "./taskData";
 
-export default function Tasklist() {
+export default function Tasklist({tasks} : {tasks: Array<TaskModel>}) {
     const mapped = tasks.map(task => <Task 
-                                        key={tasks.indexOf(task)}
+                                        key={task.id}
+                                        id={task.id}
                                         title={task.title} 
                                         priority={task.priority}
                                         time={task.time}/>)

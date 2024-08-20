@@ -1,15 +1,40 @@
-import { Text, View, StyleSheet } from "react-native";
+import { Text, View, StyleSheet, Pressable } from "react-native";
 import Tasklist from "./tasklist";
-import Task from "./task";
+import { useState, useEffect, useCallback } from "react";
+import { getDatabaseConnection, createDBStructure, getAllTasks, insertTask, insertForTesting, deleteData } from "./db-services";
+import { TaskModel } from "./task"
+
+/* 
+  TODO
+  - clicking on Add new task opens new page on full screen where user can add new task
+  - clicking on Suggest task opens new page with clock to choose how much free time user has and then shows suggested task and suggested task is highlighted in the list
+  - clicking on the task opens new page with options to check the task, change info and highlight or turn off highlight
+*/
 
 export default function Index() {
+
+  // Fetching data from database and storing it in the state
+  const fetchDataCallback = useCallback(async () => {
+    const db = await getDatabaseConnection();
+    await createDBStructure(db);
+    await insertForTesting(db);
+    const items = await getAllTasks(db);
+    setTasks(items);
+    await db.closeAsync();
+  }, [])
+
+
+  const [tasks, setTasks] = useState<TaskModel[]>([]);
+  useEffect(() => {
+    fetchDataCallback();
+  }, [fetchDataCallback]);
   return (
     <View style={styles.layout}>
-      <Tasklist/>
-      <Text style={styles.buttonWrapper}>
-        <View style={{backgroundColor: "#6482AD"}}><Text>Temp button 1</Text></View>
-        <View style={{backgroundColor: "#6482AD"}}><Text>Temp button 2</Text></View>
-      </Text>
+      <Tasklist tasks={tasks}/>
+      <View style={styles.buttonWrapper}>
+        <Pressable onPress={suggestTask} style={styles.buttonStyle}><Text style={styles.buttonText}>Suggest task</Text></Pressable>
+        <Pressable onPress={addTask} style={styles.buttonStyle}><Text style={styles.buttonText}>Add new task</Text></Pressable>
+      </View>
     </View>
   );
 }
@@ -26,5 +51,29 @@ const styles = StyleSheet.create({
     flex: 0.3,
     backgroundColor: "#E2DAD6",
     width: "100%",
+    flexDirection: "column",
+    justifyContent: "space-around",
+    alignItems: "center"
+  },
+  buttonStyle:{
+    backgroundColor: "#6482AD",
+    width: "85%",
+    height: 60,
+    borderRadius: 15,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  buttonText:{
+    color: "white",
+    fontSize: 28,
+    //fontFamily: "Lato-Regular"
   }
 });
+
+function suggestTask(){
+
+}
+
+function addTask(){
+
+}

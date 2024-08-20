@@ -1,7 +1,8 @@
 const data = [
     {title: "Test 1",
     priority: 5,
-    time: 90},
+    time: 90,
+    highlighted: false},
 
     {title: "Test 2",
     priority: 2,
