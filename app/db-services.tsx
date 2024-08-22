@@ -14,22 +14,31 @@ export async function createDBStructure(db: SQLite.SQLiteDatabase) {
     await db.runAsync(createTableQuery);
 }
 
-export async function insertTask(db: SQLite.SQLiteDatabase, task: TaskModel) {
+interface Id {
+    id: number
+}
+
+export async function insertTask(db: SQLite.SQLiteDatabase, task: TaskModel): Promise<number> {
     try {
         const insertTaskQuery = `INSERT INTO tasks (title, priority, time)
         VALUES (?, ?, ?);`;
         await db.runAsync(insertTaskQuery, [task.title, task.priority, task.time]);
+        const result = await db.getFirstAsync<Id>("SELECT last_insert_rowid() as id");
+        if (result === null) {
+            throw Error("Failed");
+        }
+        return result.id;
     } catch (error) {
         console.error(error);
-        throw Error("Failed to insert task");
+        throw Error("Failed to properly insert task");
     }
-
 }
 
 export async function getAllTasks(db: SQLite.SQLiteDatabase): Promise<TaskModel[]> {
     try {
         const getAllTasksQuery = `SELECT rowid as id, title, priority, time
-        FROM tasks;`;
+                                  FROM tasks
+                                  ORDER BY priority DESC;`;
         const result = await db.getAllAsync<TaskModel>(getAllTasksQuery);
         const tasks: TaskModel[] = [];
         for (const row of result) {
@@ -43,11 +52,15 @@ export async function getAllTasks(db: SQLite.SQLiteDatabase): Promise<TaskModel[
 
 }
 
-export async function getTasksCount(db: SQLite.SQLiteDatabase): Promise<number | null> {
+interface Count {
+    count: number
+}
+
+export async function getTasksCount(db: SQLite.SQLiteDatabase): Promise<number | undefined> {
     try {
         const getCountQuery = `SELECT COUNT(1) as count FROM tasks;`;
-        const result = await db.getFirstAsync<number>(getCountQuery);
-        const count = result;
+        const result = await db.getFirstAsync<Count>(getCountQuery);
+        const count: number | undefined = result?.count;
         return count;
     } catch (error) {
         console.error(error);

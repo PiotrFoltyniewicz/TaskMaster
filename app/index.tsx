@@ -3,6 +3,7 @@ import Tasklist from "./tasklist";
 import { useState, useEffect, useCallback } from "react";
 import { getDatabaseConnection, createDBStructure, getAllTasks, insertTask, insertForTesting, deleteData } from "./db-services";
 import { TaskModel } from "./task"
+import { Link } from "expo-router";
 
 /* 
   TODO
@@ -12,11 +13,11 @@ import { TaskModel } from "./task"
 */
 
 export default function Index() {
-
   // Fetching data from database and storing it in the state
   const fetchDataCallback = useCallback(async () => {
     const db = await getDatabaseConnection();
     await createDBStructure(db);
+    //await deleteData(db);
     await insertForTesting(db);
     const items = await getAllTasks(db);
     setTasks(items);
@@ -28,26 +29,31 @@ export default function Index() {
   useEffect(() => {
     fetchDataCallback();
   }, [fetchDataCallback]);
+
+  function suggestTask() {
+
+  }
+
   return (
     <View style={styles.layout}>
-      <Tasklist tasks={tasks}/>
+      <Tasklist tasks={tasks} />
       <View style={styles.buttonWrapper}>
-        <Pressable onPress={suggestTask} style={styles.buttonStyle}><Text style={styles.buttonText}>Suggest task</Text></Pressable>
-        <Pressable onPress={addTask} style={styles.buttonStyle}><Text style={styles.buttonText}>Add new task</Text></Pressable>
+        <Link href={{ pathname: "/" }} style={styles.buttonStyle}>Suggest task</Link>
+        <Link href={{ pathname: "/addTaskWindow" }} style={styles.buttonStyle}>Add new task</Link>
       </View>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  layout:{
+  layout: {
     flex: 1,
     flexDirection: "column",
     justifyContent: "space-between",
     alignItems: "center",
     backgroundColor: "#F5EDED"
   },
-  buttonWrapper:{
+  buttonWrapper: {
     flex: 0.3,
     backgroundColor: "#E2DAD6",
     width: "100%",
@@ -55,25 +61,13 @@ const styles = StyleSheet.create({
     justifyContent: "space-around",
     alignItems: "center"
   },
-  buttonStyle:{
+  buttonStyle: {
     backgroundColor: "#6482AD",
     width: "85%",
-    height: 60,
+    padding: 10,
     borderRadius: 15,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  buttonText:{
+    textAlign: "center",
     color: "white",
     fontSize: 28,
-    //fontFamily: "Lato-Regular"
   }
 });
-
-function suggestTask(){
-
-}
-
-function addTask(){
-
-}
