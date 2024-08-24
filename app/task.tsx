@@ -1,4 +1,5 @@
 import { Text, View, StyleSheet, Pressable } from "react-native";
+import { Link } from "expo-router";
 
 export interface TaskModel {
   id: number,
@@ -9,9 +10,9 @@ export interface TaskModel {
 
 export default function Task(props: TaskModel) {
   return (
-    <Pressable style={styles.task}>
+    <Link href={{ pathname: "/taskEdit" }} style={styles.task}>
       <Text style={styles.taskText}>{props.title}</Text>
-    </Pressable>
+    </Link>
   );
 }
 
